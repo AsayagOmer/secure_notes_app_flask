@@ -13,7 +13,7 @@ jobs:
     # the deployment that I see in GitHub
     environment:
       name: Production
-      url: https://YOUR_APP_NAME.onrender.com
+      url: https://secure-notes-app-flask.onrender.com
 
     steps:
       - name: Trigger Render Deploy
