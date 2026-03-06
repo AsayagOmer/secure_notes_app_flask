@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}My Notes{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2 class="mb-4">Your Notes</h2>
+
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <div class="input-group">
+                    <input type="text" id="noteContent" class="form-control" placeholder="What's on your mind?" required>
+                    <button class="btn btn-primary" onclick="addNote()">Add Note</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="notesContainer" class="list-group">
+            {% for note in notes %}
+                <div id="note-{{ note.id }}" class="list-group-item d-flex justify-content-between align-items-center mb-2 shadow-sm rounded">
+                    <span>{{ note.content }}</span>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteNote({{ note.id }})">Delete</button>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Get the CSRF token from the Meta tag or a hidden input (Flask-WTF requirement)
+    const csrfToken = "{{ csrf_token() }}";
+
+    /**
+     * Send a POST request to create a new note
+     */
+    async function addNote() {
+        const contentInput = document.getElementById('noteContent');
+        const content = contentInput.value;
+
+        if (!content) return alert("Note cannot be empty!");
+
+        try {
+            const response = await fetch("{{ url_for('notes.create_note') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken
+                },
+                body: JSON.stringify({ content: content })
+            });
+
+            if (response.ok) {
+                // Refresh the page or manually append the new note to the list
+                location.reload();
+            } else {
+                alert("Error creating note.");
+            }
+        } catch (error) {
+            console.error("Request failed", error);
+        }
+    }
+
+    /**
+     * Send a DELETE request to remove a note
+     */
+    async function deleteNote(noteId) {
+        if (!confirm("Are you sure you want to delete this note?")) return;
+
+        try {
+            const response = await fetch(`/api/notes/${noteId}`, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRFToken": csrfToken
+                }
+            });
+
+            if (response.ok) {
+                // Remove the element from the DOM without reloading
+                document.getElementById(`note-${noteId}`).remove();
+            } else {
+                alert("Error deleting note.");
+            }
+        } catch (error) {
+            console.error("Request failed", error);
+        }
+    }
+</script>
+{% endblock %}

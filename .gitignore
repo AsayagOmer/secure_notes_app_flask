@@ -1,0 +1,14 @@
+# Environment variables and secrets
+.env
+
+# Virtual environment
+venv/
+env/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Local databases
+*.db
+instance/
