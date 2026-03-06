@@ -25,6 +25,11 @@ class ProductionConfig(Config):
     # In production, the database connection must be secure and external
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
 
+    db_url = SQLALCHEMY_DATABASE_URI
+    # Old format fix: for Render
+    if db_url and db_url.startswith('postgres://'):
+        db_url = db_url.replace('postgres://', 'postgresql://', 1)
+
     # Stricter security settings for production environments
     SESSION_COOKIE_SECURE = True
     REMEMBER_COOKIE_SECURE = True
