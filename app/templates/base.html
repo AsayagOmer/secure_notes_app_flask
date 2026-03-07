@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <title>Notes Management System</title>
+
+    <link rel="icon" href="{{ url_for('static', filename='notes_favicon.ico') }}" type="image/x-icon">
+
     <style>
         body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
         nav { background: #f4f4f4; padding: 10px; margin-bottom: 20px; }
