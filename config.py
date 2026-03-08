@@ -23,10 +23,11 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     # In production, the database connection must be secure and external
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    db_url = os.environ.get('DATABASE_URL')
 
-    db_url = SQLALCHEMY_DATABASE_URI
     # Old format fix: for Render
+    if not db_url:
+        raise ValueError("CRITICAL ERROR: DATABASE_URL environment variable is missing in Render!")
     if db_url and db_url.startswith('postgres://'):
         db_url = db_url.replace('postgres://', 'postgresql://', 1)
 

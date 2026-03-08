@@ -15,3 +15,6 @@ __pycache__/
 # Local databases
 *.db
 instance/
+
+# Kubernetes Secrets (CRITICAL: Do not commit!)
+k8s/secret.yaml

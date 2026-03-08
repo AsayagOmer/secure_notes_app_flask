@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from config import config_dict
 from app.extensions import db, csrf, login_manager
@@ -14,7 +15,22 @@ def create_app(config_name='development'):
     # Load settings from the configuration dictionary
     app.config.from_object(config_dict[config_name])
 
-    # Initialize extensions and link them to the app instance
+    # --- CRITICAL FIX: Direct Injection of Database URL ---
+    # Retrieve the database URL injected into the pod (e.g., by Kubernetes)
+    db_url = os.environ.get('DATABASE_URL')
+
+    if db_url:
+        # Resolve known SQLAlchemy/PostgreSQL compatibility issue:
+        # SQLAlchemy requires 'postgresql://' while some providers use 'postgres://'
+        if db_url.startswith("postgres://"):
+            db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+        # Override the Flask internal configuration with the safe URL
+        app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+    # -----------------------------------------------------------
+
+    # Initialize extensions and bind them to the app instance
+    # This will now initialize correctly as the URI is guaranteed.
     db.init_app(app)
     csrf.init_app(app)
     login_manager.init_app(app)

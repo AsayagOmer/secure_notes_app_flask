@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notes-app-deployment
+spec:
+  # We are requesting Kubernetes to run 2 replicas in parallel for High Availability (HA)
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notes-app
+  template:
+    metadata:
+      labels:
+        app: notes-app
+    spec:
+      containers:
+      - name: notes-app-container
+        image: secure-notes-app:v3
+        # Required for local environments! Tells Kubernetes to use the local image instead of pulling from a registry
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - secretRef:
+            # Pulls all secret keys from the Secret resource defined previously
+            name: notes-app-secrets
