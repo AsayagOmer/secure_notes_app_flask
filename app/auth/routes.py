@@ -96,7 +96,8 @@ def setup_mfa():
         img.save(buffered, format="PNG")
         qr_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
 
-        return render_template('auth/setup_mfa.html', qr_code=qr_base64, secret=current_user.otp_secret)
+        # Fixed.
+        return render_template('setup_mfa.html', qr_code=qr_base64, secret=current_user.otp_secret)
 
     elif request.method == 'POST':
         # 4. The user scanned the code and entered the 6-digit token - let's verify it!
