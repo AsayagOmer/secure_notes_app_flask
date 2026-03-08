@@ -2,6 +2,9 @@
 
 This document outlines the directory structure and the purpose of each component within the Flask application.
 
+
+<img src="./readme_images/MVC.jpg" width="550" height="300">
+
 ## Directory Tree
 
 ```text
