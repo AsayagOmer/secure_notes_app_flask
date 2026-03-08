@@ -76,37 +76,42 @@ def logout():
 @auth_bp.route('/setup-mfa', methods=['GET', 'POST'])
 @login_required
 def setup_mfa():
-    # If the user already has MFA enabled, redirect them
-    if current_user.is_mfa_enabled:
-        flash('MFA is already enabled on your account.', 'info')
-        return redirect(url_for('notes.index'))  # Ensure this points to your main page
-
-    if request.method == 'GET':
-        # 1. Generate a new secret if one doesn't exist yet
-        if not current_user.otp_secret:
-            current_user.otp_secret = pyotp.random_base32()
-            db.session.commit()
-
-        # 2. Generate the QR code
-        uri = current_user.get_totp_uri()
-        img = qrcode.make(uri)
-
-        # 3. Save the image to a memory buffer and encode it to Base64 for the HTML template
-        buffered = BytesIO()
-        img.save(buffered, format="PNG")
-        qr_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
-
-        # Fixed.
-        return render_template('setup_mfa.html', qr_code=qr_base64, secret=current_user.otp_secret)
-
-    elif request.method == 'POST':
-        # 4. The user scanned the code and entered the 6-digit token - let's verify it!
-        token = request.form.get('token')
-        if current_user.verify_totp(token):
-            current_user.is_mfa_enabled = True
-            db.session.commit()
-            flash('MFA setup complete! Your account is now secured.', 'success')
+    try:
+        # If the user already has MFA enabled, redirect them
+        if current_user.is_mfa_enabled:
+            flash('MFA is already enabled on your account.', 'info')
             return redirect(url_for('notes.index'))
-        else:
-            flash('Invalid code. Please try again.', 'danger')
-            return redirect(url_for('auth.setup_mfa'))
+
+        if request.method == 'GET':
+            # 1. Generate a new secret if one doesn't exist yet
+            if not current_user.otp_secret:
+                current_user.otp_secret = pyotp.random_base32()
+                db.session.commit()
+
+            # 2. Generate the QR code
+            uri = current_user.get_totp_uri()
+            img = qrcode.make(uri)
+
+            # 3. Save the image to a memory buffer and encode it to Base64 for the HTML template
+            buffered = BytesIO()
+            img.save(buffered, format="PNG")
+            qr_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+
+            return render_template('setup_mfa.html', qr_code=qr_base64, secret=current_user.otp_secret)
+
+        elif request.method == 'POST':
+            # 4. The user scanned the code and entered the 6-digit token - let's verify it!
+            token = request.form.get('token')
+            if current_user.verify_totp(token):
+                current_user.is_mfa_enabled = True
+                db.session.commit()
+                flash('MFA setup complete! Your account is now secured.', 'success')
+                return redirect(url_for('notes.index'))
+            else:
+                flash('Invalid code. Please try again.', 'danger')
+                return redirect(url_for('auth.setup_mfa'))
+
+    except Exception as e:
+        # I'll try to catch the error to my screen.
+        import traceback
+        return f"<h1>Oops! Here is the exact error:</h1><pre style='background:#f4f4f4; padding:20px; font-size:16px;'>{traceback.format_exc()}</pre>", 500

@@ -1,18 +1,16 @@
-Write-Host "Starting Build and Deploy Process..." -ForegroundColor Cyan
-
-Write-Host "Building Docker image (secure-notes-app:dev)..." -ForegroundColor Yellow
-docker build -t secure-notes-app:dev .
+Write-Host "1. Building image with tag 'latest'..." -ForegroundColor Yellow
+docker build -t secure-notes-app:latest .
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Docker build failed! Check your code and try again." -ForegroundColor Red
+    Write-Host "Build failed!" -ForegroundColor Red
     exit 1
 }
 
-Write-Host "Restarting Kubernetes deployment..." -ForegroundColor Yellow
+Write-Host "2. Forcing Kubernetes to reload 'latest'..." -ForegroundColor Yellow
+# Strong way to "wake up"
 kubectl rollout restart deployment notes-app-deployment
 
-Write-Host "Waiting for new pods to be ready..." -ForegroundColor Yellow
+Write-Host "3. Waiting for deployment..." -ForegroundColor Yellow
 kubectl rollout status deployment notes-app-deployment
 
-Write-Host "Deployment Successful! Your app is updated." -ForegroundColor Green
-kubectl get pods
+Write-Host "Done! Go refresh the page." -ForegroundColor Green
