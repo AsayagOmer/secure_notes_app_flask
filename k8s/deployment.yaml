@@ -15,9 +15,9 @@ spec:
     spec:
       containers:
       - name: notes-app-container
-        image: secure-notes-app:v3
+        image: secure-notes-app:dev # Const tag
         # Required for local environments! Tells Kubernetes to use the local image instead of pulling from a registry
-        imagePullPolicy: Never
+        imagePullPolicy: Never # Critical for local build!
         ports:
         - containerPort: 8000
         envFrom:
