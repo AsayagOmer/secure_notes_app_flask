@@ -26,7 +26,8 @@ def create_note():
     Expects JSON data with a 'content' field.
     """
     data = request.get_json()
-    new_note = Note(content=data['content'], author=current_user)
+    title = data.get('title', 'Untitled')
+    new_note = Note(title=title, content=data['content'], author=current_user)
     db.session.add(new_note)
     db.session.commit()
     return jsonify({'message': 'Note created successfully'}), 201

@@ -9,6 +9,9 @@
 
         <div class="card mb-4 shadow-sm">
             <div class="card-body">
+                <div class="mb-2">
+                    <input type="text" id="noteTitle" class="form-control" placeholder="Note Title (Optional)">
+                </div>
                 <div class="input-group">
                     <input type="text" id="noteContent" class="form-control" placeholder="What's on your mind?" required>
                     <button class="btn btn-primary" onclick="addNote()">Add Note</button>
@@ -19,7 +22,10 @@
         <div id="notesContainer" class="list-group">
             {% for note in notes %}
                 <div id="note-{{ note.id }}" class="list-group-item d-flex justify-content-between align-items-center mb-2 shadow-sm rounded">
-                    <span>{{ note.content }}</span>
+                    <div>
+                        <strong>{{ note.title }}</strong><br>
+                        <span>{{ note.content }}</span>
+                    </div>
                     <button class="btn btn-sm btn-outline-danger" onclick="deleteNote({{ note.id }})">Delete</button>
                 </div>
             {% endfor %}
@@ -35,7 +41,9 @@
      * Send a POST request to create a new note
      */
     async function addNote() {
+        const titleInput = document.getElementById('noteTitle');
         const contentInput = document.getElementById('noteContent');
+        const title = titleInput.value;
         const content = contentInput.value;
 
         if (!content) return alert("Note cannot be empty!");
@@ -47,7 +55,7 @@
                     "Content-Type": "application/json",
                     "X-CSRFToken": csrfToken
                 },
-                body: JSON.stringify({ content: content })
+                body: JSON.stringify({ title: title, content: content })
             });
 
             if (response.ok) {
