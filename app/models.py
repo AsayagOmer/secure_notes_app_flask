@@ -59,5 +59,8 @@ class Note(db.Model):
     # 3. Setter: Triggered when the application wants to SAVE/UPDATE note content
     @content.setter
     def content(self, value):
+        from app.ml_pii import redact_pii
+        # Automatically redact PII
+        redacted_value = redact_pii(value)
         # Automatically encrypt the value before storing it in the database
-        self._content = encrypt_text(value)
+        self._content = encrypt_text(redacted_value)
